@@ -1,0 +1,42 @@
+pairs: [DEXUSEU, DEXJPUS]
+start: "2010-01-01"
+test_fraction: 0.2
+band_confidence: 0.95
+
+mean:
+  max_m: 2
+  lb_lags: 10
+  spike_lags: 5
+
+arch_check:
+  lm_lags: 5
+  lb_lags: 10
+  alpha: 0.05
+
+variance:
+  pacf_cut_max_p: 3
+  quiet_lags: 5
+
+gate:
+  lb_lags: [5, 10, 20]
+  lm_lags: 5
+  alpha: 0.05
+
+escalation:
+  cap: 3
+
+fit:
+  dist: normal
+
+forecast:
+  refit_every: 20
+  horizon: 1
+
+baselines:
+  rolling_window: 60
+  grid_max: 5
+
+sim:
+  R: 500
+  n: [500, 1000, 4000]
+  seed: 42

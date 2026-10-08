@@ -1,0 +1,10 @@
+pandas
+numpy
+scipy
+statsmodels
+arch
+matplotlib
+streamlit
+joblib
+pytest
+pyyaml
