@@ -40,3 +40,16 @@ sim:
   R: 500
   n: [500, 1000, 4000]
   seed: 42
+
+fred:
+  url_template: "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"  # unverified
+
+pairs_optional: [DEXINUS]
+
+eda:
+  nlags: 40
+  sig_window: 20  # lags 1..sig_window counted in the EDA summary
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed

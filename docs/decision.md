@@ -51,3 +51,8 @@ Format: ID | date | choice | why | alternatives.
 - Choice: Escalation on gate failure: try best-BIC neighbour (p+1,q) / (p,q+1), then Student-t errors, cap 3 attempts, flag failure if still failing.
 - Why: Bounded, deterministic repair path.
 - Alternatives: unbounded grid search; accept first fit.
+
+## D-011 | 2026-10-08
+- Choice: FX data loaded by direct FRED CSV download (fred.url_template in config.yaml, URL unverified), cached under data/raw. Manual download from the FRED series page is the fallback (save as data/raw/{series_id}.csv).
+- Why: No API key or extra dependency; cached file makes later runs offline and reproducible.
+- Alternatives: fredapi / pandas-datareader (new dependency), Yahoo Finance.

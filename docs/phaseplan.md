@@ -3,13 +3,15 @@
 ## P0 Bootstrap
 - [x] Planning complete, repo scaffolded (stubs only)
 - [x] Environment installed, versions recorded (arch 8.0.0, statsmodels 0.15.0, pandas 3.0.6, numpy 2.5.3, scipy 1.18.1)
-- [ ] First git commit (user to confirm)
+- [x] First git commit (user confirmed; Python 3.13+)
 
 ## P1 Data, returns, stationarity, first correlograms (4h)
-- [ ] data.py
-- [ ] stat_tests.py
-- [ ] correlogram.py
-- [ ] notebooks/01_eda with 4-panel ACF/PACF for EUR/USD
+(`[~]` = written, not yet run)
+- [~] data.py
+- [~] stat_tests.py
+- [~] correlogram.py
+- [~] tests/test_p1.py
+- [~] notebooks/01_eda with 4-panel ACF/PACF for EUR/USD
 - [ ] Gate: squared-return structure present, else stop and re-plan
 
 ## P2 Selector (8h)
