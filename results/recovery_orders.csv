@@ -1,0 +1,179 @@
+true_model,n,selector,start_order,final_order,count
+arch1,500,hybrid,"(1, 0)","(1, 0)",329
+arch1,500,hybrid,"(1, 1)","(1, 1)",78
+arch1,500,hybrid,"(2, 0)","(2, 0)",63
+arch1,500,hybrid,"(3, 0)","(3, 0)",27
+arch1,500,hybrid,"(0, 0)","(0, 0)",3
+arch1,1000,hybrid,"(1, 0)","(1, 0)",303
+arch1,1000,hybrid,"(1, 1)","(1, 1)",84
+arch1,1000,hybrid,"(2, 0)","(2, 0)",67
+arch1,1000,hybrid,"(3, 0)","(3, 0)",45
+arch1,1000,hybrid,"(1, 0)","(2, 0)",1
+arch1,1000,grid_bic,n/a,"(1, 0)",497
+arch1,1000,grid_bic,n/a,"(2, 0)",3
+arch1,4000,hybrid,"(1, 0)","(1, 0)",226
+arch1,4000,hybrid,"(1, 1)","(1, 1)",105
+arch1,4000,hybrid,"(2, 0)","(2, 0)",98
+arch1,4000,hybrid,"(3, 0)","(3, 0)",69
+arch1,4000,hybrid,"(1, 1)","(1, 2)",2
+garch11,500,hybrid,"(1, 1)","(1, 1)",378
+garch11,500,hybrid,"(3, 0)","(3, 0)",37
+garch11,500,hybrid,"(2, 0)","(2, 0)",29
+garch11,500,hybrid,"(0, 0)","(0, 0)",28
+garch11,500,hybrid,"(1, 0)","(1, 0)",17
+garch11,500,hybrid,"(1, 0)","(1, 1)",5
+garch11,500,hybrid,"(2, 0)","(2, 1)",5
+garch11,500,hybrid,"(3, 0)","(3, 1)",1
+garch11,1000,hybrid,"(1, 1)","(1, 1)",465
+garch11,1000,hybrid,"(3, 0)","(3, 0)",16
+garch11,1000,hybrid,"(1, 0)","(1, 1)",4
+garch11,1000,hybrid,"(3, 0)","(3, 1)",4
+garch11,1000,hybrid,"(1, 0)","(1, 0)",3
+garch11,1000,hybrid,"(1, 1)","(1, 2)",3
+garch11,1000,hybrid,"(2, 0)","(2, 0)",2
+garch11,1000,hybrid,"(2, 0)","(2, 1)",2
+garch11,1000,hybrid,"(1, 1)","(2, 1)",1
+garch11,1000,grid_bic,n/a,"(1, 1)",491
+garch11,1000,grid_bic,n/a,"(2, 1)",3
+garch11,1000,grid_bic,n/a,"(1, 2)",2
+garch11,1000,grid_bic,n/a,"(1, 3)",2
+garch11,1000,grid_bic,n/a,"(1, 0)",1
+garch11,1000,grid_bic,n/a,"(2, 0)",1
+garch11,4000,hybrid,"(1, 1)","(1, 1)",498
+garch11,4000,hybrid,"(1, 1)","(1, 2)",2
+garch21,500,hybrid,"(1, 1)","(1, 1)",374
+garch21,500,hybrid,"(3, 0)","(3, 0)",32
+garch21,500,hybrid,"(0, 0)","(0, 0)",31
+garch21,500,hybrid,"(2, 0)","(2, 0)",31
+garch21,500,hybrid,"(1, 1)","(2, 1)",15
+garch21,500,hybrid,"(2, 0)","(2, 1)",8
+garch21,500,hybrid,"(1, 0)","(1, 0)",6
+garch21,500,hybrid,"(3, 0)","(3, 1)",3
+garch21,1000,hybrid,"(1, 1)","(1, 1)",460
+garch21,1000,hybrid,"(1, 1)","(2, 1)",17
+garch21,1000,hybrid,"(3, 0)","(3, 0)",13
+garch21,1000,hybrid,"(2, 0)","(2, 0)",3
+garch21,1000,hybrid,"(3, 0)","(3, 1)",3
+garch21,1000,hybrid,"(0, 0)","(0, 0)",1
+garch21,1000,hybrid,"(1, 0)","(1, 1)",1
+garch21,1000,hybrid,"(1, 1)","(1, 2)",1
+garch21,1000,hybrid,"(2, 0)","(2, 1)",1
+garch21,1000,grid_bic,n/a,"(1, 1)",467
+garch21,1000,grid_bic,n/a,"(2, 1)",30
+garch21,1000,grid_bic,n/a,"(1, 0)",1
+garch21,1000,grid_bic,n/a,"(1, 2)",1
+garch21,1000,grid_bic,n/a,"(2, 0)",1
+garch21,4000,hybrid,"(1, 1)","(1, 1)",388
+garch21,4000,hybrid,"(1, 1)","(2, 1)",112
+garch12,500,hybrid,"(1, 1)","(1, 1)",254
+garch12,500,hybrid,"(0, 0)","(0, 0)",113
+garch12,500,hybrid,"(1, 0)","(1, 0)",50
+garch12,500,hybrid,"(3, 0)","(3, 0)",37
+garch12,500,hybrid,"(2, 0)","(2, 0)",33
+garch12,500,hybrid,"(1, 0)","(1, 1)",10
+garch12,500,hybrid,"(3, 0)","(3, 1)",2
+garch12,500,hybrid,"(2, 0)","(2, 1)",1
+garch12,1000,hybrid,"(1, 1)","(1, 1)",378
+garch12,1000,hybrid,"(3, 0)","(3, 0)",44
+garch12,1000,hybrid,"(1, 0)","(1, 0)",24
+garch12,1000,hybrid,"(2, 0)","(2, 0)",23
+garch12,1000,hybrid,"(0, 0)","(0, 0)",16
+garch12,1000,hybrid,"(1, 0)","(1, 1)",9
+garch12,1000,hybrid,"(1, 1)","(1, 2)",3
+garch12,1000,hybrid,"(3, 0)","(3, 1)",2
+garch12,1000,hybrid,"(2, 0)","(2, 1)",1
+garch12,1000,grid_bic,n/a,"(1, 1)",440
+garch12,1000,grid_bic,n/a,"(1, 0)",49
+garch12,1000,grid_bic,n/a,"(2, 0)",6
+garch12,1000,grid_bic,n/a,"(1, 2)",2
+garch12,1000,grid_bic,n/a,"(3, 0)",2
+garch12,1000,grid_bic,n/a,"(1, 3)",1
+garch12,4000,hybrid,"(1, 1)","(1, 1)",480
+garch12,4000,hybrid,"(1, 1)","(1, 2)",19
+garch12,4000,hybrid,"(2, 0)","(2, 1)",1
+garch11_t,500,hybrid,"(1, 1)","(1, 1)",313
+garch11_t,500,hybrid,"(0, 0)","(0, 0)",74
+garch11_t,500,hybrid,"(3, 0)","(3, 0)",32
+garch11_t,500,hybrid,"(1, 0)","(1, 0)",22
+garch11_t,500,hybrid,"(2, 0)","(2, 0)",20
+garch11_t,500,hybrid,"(1, 0)","(1, 1)",17
+garch11_t,500,hybrid,"(2, 0)","(2, 1)",8
+garch11_t,500,hybrid,"(1, 1)","(2, 1)",5
+garch11_t,500,hybrid,"(3, 0)","(3, 1)",4
+garch11_t,500,hybrid,"(1, 1)","(1, 2)",3
+garch11_t,500,hybrid,"(1, 0)","(2, 0)",1
+garch11_t,500,hybrid,"(2, 0)","(3, 0)",1
+garch11_t,1000,hybrid,"(1, 1)","(1, 1)",434
+garch11_t,1000,hybrid,"(3, 0)","(3, 0)",14
+garch11_t,1000,hybrid,"(1, 1)","(2, 1)",10
+garch11_t,1000,hybrid,"(2, 0)","(2, 0)",9
+garch11_t,1000,hybrid,"(1, 0)","(1, 0)",7
+garch11_t,1000,hybrid,"(3, 0)","(3, 1)",7
+garch11_t,1000,hybrid,"(0, 0)","(0, 0)",5
+garch11_t,1000,hybrid,"(1, 0)","(1, 1)",5
+garch11_t,1000,hybrid,"(2, 0)","(2, 1)",5
+garch11_t,1000,hybrid,"(1, 1)","(1, 2)",4
+garch11_t,1000,grid_bic,n/a,"(1, 1)",422
+garch11_t,1000,grid_bic,n/a,"(2, 1)",26
+garch11_t,1000,grid_bic,n/a,"(1, 2)",20
+garch11_t,1000,grid_bic,n/a,"(3, 1)",5
+garch11_t,1000,grid_bic,n/a,"(1, 0)",4
+garch11_t,1000,grid_bic,n/a,"(1, 3)",4
+garch11_t,1000,grid_bic,n/a,"(2, 0)",2
+garch11_t,1000,grid_bic,n/a,"(2, 2)",2
+garch11_t,1000,grid_bic,n/a,"(3, 2)",2
+garch11_t,1000,grid_bic,n/a,"(3, 4)",2
+garch11_t,1000,grid_bic,n/a,"(4, 0)",2
+garch11_t,1000,grid_bic,n/a,"(4, 1)",2
+garch11_t,1000,grid_bic,n/a,"(4, 2)",2
+garch11_t,1000,grid_bic,n/a,"(5, 0)",2
+garch11_t,1000,grid_bic,n/a,"(2, 3)",1
+garch11_t,1000,grid_bic,n/a,"(3, 0)",1
+garch11_t,1000,grid_bic,n/a,"(3, 3)",1
+garch11_t,4000,hybrid,"(1, 1)","(1, 1)",496
+garch11_t,4000,hybrid,"(1, 1)","(2, 1)",4
+iid,500,hybrid,"(0, 0)","(0, 0)",463
+iid,500,hybrid,"(1, 1)","(1, 1)",27
+iid,500,hybrid,"(1, 0)","(1, 0)",5
+iid,500,hybrid,"(3, 0)","(3, 0)",3
+iid,500,hybrid,"(1, 1)","(2, 1)",1
+iid,500,hybrid,"(2, 0)","(2, 0)",1
+iid,1000,hybrid,"(0, 0)","(0, 0)",456
+iid,1000,hybrid,"(1, 1)","(1, 1)",28
+iid,1000,hybrid,"(2, 0)","(2, 0)",10
+iid,1000,hybrid,"(1, 0)","(1, 0)",4
+iid,1000,hybrid,"(1, 1)","(2, 1)",1
+iid,1000,hybrid,"(3, 0)","(3, 0)",1
+iid,1000,grid_bic,n/a,"(1, 0)",489
+iid,1000,grid_bic,n/a,"(1, 1)",6
+iid,1000,grid_bic,n/a,"(2, 0)",5
+iid,4000,hybrid,"(0, 0)","(0, 0)",465
+iid,4000,hybrid,"(1, 1)","(1, 1)",22
+iid,4000,hybrid,"(3, 0)","(3, 0)",7
+iid,4000,hybrid,"(1, 0)","(1, 0)",4
+iid,4000,hybrid,"(2, 0)","(2, 0)",2
+ar1_garch11,500,hybrid,"(1, 1)","(1, 1)",381
+ar1_garch11,500,hybrid,"(3, 0)","(3, 0)",43
+ar1_garch11,500,hybrid,"(0, 0)","(0, 0)",30
+ar1_garch11,500,hybrid,"(2, 0)","(2, 0)",16
+ar1_garch11,500,hybrid,"(1, 0)","(1, 0)",12
+ar1_garch11,500,hybrid,"(1, 0)","(1, 1)",10
+ar1_garch11,500,hybrid,"(2, 0)","(2, 1)",7
+ar1_garch11,500,hybrid,"(1, 1)","(2, 1)",1
+ar1_garch11,1000,hybrid,"(1, 1)","(1, 1)",474
+ar1_garch11,1000,hybrid,"(3, 0)","(3, 0)",13
+ar1_garch11,1000,hybrid,"(2, 0)","(2, 1)",4
+ar1_garch11,1000,hybrid,"(1, 0)","(1, 1)",2
+ar1_garch11,1000,hybrid,"(1, 1)","(2, 1)",2
+ar1_garch11,1000,hybrid,"(3, 0)","(3, 1)",2
+ar1_garch11,1000,hybrid,"(1, 0)","(1, 0)",1
+ar1_garch11,1000,hybrid,"(1, 1)","(1, 2)",1
+ar1_garch11,1000,hybrid,"(2, 0)","(2, 0)",1
+ar1_garch11,1000,grid_bic,n/a,"(1, 1)",493
+ar1_garch11,1000,grid_bic,n/a,"(2, 1)",3
+ar1_garch11,1000,grid_bic,n/a,"(1, 2)",2
+ar1_garch11,1000,grid_bic,n/a,"(1, 0)",1
+ar1_garch11,1000,grid_bic,n/a,"(2, 0)",1
+ar1_garch11,4000,hybrid,"(1, 1)","(1, 1)",498
+ar1_garch11,4000,hybrid,"(1, 1)","(1, 2)",1
+ar1_garch11,4000,hybrid,"(1, 1)","(2, 1)",1

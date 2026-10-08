@@ -1,0 +1,1 @@
+recovery experiment, mode=full, R=500, n=[500, 1000, 4000], elapsed=183.6 s

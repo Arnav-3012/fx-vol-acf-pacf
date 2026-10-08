@@ -4,9 +4,14 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
-# Virtual env
+# Virtual env (.atsa-project is this project's venv, about 760 MB, must never be committed)
 .venv/
 venv/
+.atsa-project/
+
+# OS and editor files
+.DS_Store
+.env
 
 # Data
 data/raw/*

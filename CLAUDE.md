@@ -10,6 +10,7 @@ Planning happens in the claude.ai Project. Coding and debugging happen here.
 3. End every task with a "Commands to run" bash block. One line before each command says what it does and what output to paste back.
 4. Never invent output, metrics, p-values or results. Unrun means unknown.
 5. Ask before deleting or overwriting existing files.
+6. Every piece of code written or edited (src, tests, notebook cells, app.py, config.yaml keys) must be explained by comments, no exceptions: a module docstring (what the file is for), a docstring on every function and test (what it does, inputs, output), a comment on every logical step (what it does and why, in plain English with the statistics idea), and a comment on every non-obvious line. Blank lines between steps, one idea per block. Code without these comments is not finished. When editing existing code, bring the touched function up to this standard.
 
 ## Session start read order
 1. CLAUDE.md
@@ -36,6 +37,7 @@ Planning happens in the claude.ai Project. Coding and debugging happen here.
 
 ## Code rules
 - Python 3.11+, type hints, short docstrings.
+- Readability (sensei style) follows hard rule 6. Notebook code cells open with a "GOAL" comment and a plain-English note on how to read the output.
 - Pure functions in src/. No logic in app.py or notebooks.
 - Thresholds, lag caps, seeds, dates, pairs live only in config.yaml.
 - No look-ahead: any choice or fit uses data up to t only.

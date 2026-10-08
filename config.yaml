@@ -1,4 +1,10 @@
-pairs: [DEXUSEU, DEXJPUS]
+# Selector rules frozen on simulated calibration data only (D-023). Changing any frozen value needs a new decision entry
+# plus a rerun of calibration AND the eval-seed recovery. Real data is never used to tune.
+frozen:
+  date: "2026-10-08"
+  decision_id: D-023
+
+pairs: [DEXUSEU, DEXJPUS, DEXINUS]  # DEXINUS promoted from pairs_optional, see D-012
 start: "2010-01-01"
 test_fraction: 0.2
 band_confidence: 0.95
@@ -7,6 +13,8 @@ mean:
   max_m: 2
   lb_lags: 10
   spike_lags: 5
+  alpha: 0.05  # LB(lb_lags) p-value threshold for "constant mean"
+  trigger: lb_only  # FROZEN M1 (D-023): AR only when LB fails. "spike_or_lb" = M0, calibration only (D-018)
 
 arch_check:
   lm_lags: 5
@@ -16,6 +24,10 @@ arch_check:
 variance:
   pacf_cut_max_p: 3
   quiet_lags: 5
+  corr_lags: 20  # lags of ACF/PACF of squared residuals used by the rule
+  fade_lag: 10   # "fading fast" (D-013): squares ACF inside the band at every lag fade_lag..corr_lags
+  fade_max_spikes: 3  # FROZEN F3 (D-023): spikes tolerated in fade_lag..corr_lags before "fades" is False (D-018, D-021)
+  cutoff_rule: last_significant  # FROZEN C0 (D-023): p = last significant PACF lag <= pacf_cut_max_p. "contiguous" = C1, calibration only (D-022)
 
 gate:
   lb_lags: [5, 10, 20]
@@ -27,10 +39,14 @@ escalation:
 
 fit:
   dist: normal
+  persistence_tol: 1.0e-6  # FROZEN (D-023): reject a fit when alpha+beta >= 1 - tol (IGARCH boundary), D-020
 
 forecast:
-  refit_every: 20
+  refit_every: 20  # refit the whole selector every 20 test days (D-025)
   horizon: 1
+  smoke: false     # true = quick check: last smoke_days test days, first pair only. Set false for the full run
+  smoke_days: 100  # test days kept in smoke mode
+  n_jobs: -1       # joblib workers for the refit blocks (-1 = all cores); no randomness, results do not depend on it
 
 baselines:
   rolling_window: 60
@@ -40,11 +56,64 @@ sim:
   R: 500
   n: [500, 1000, 4000]
   seed: 42
+  burn: 500
+  dist: normal
+  demo:  # settings for notebooks/02_selector_sim.ipynb
+    n: 2000
+    garch11: {omega: 0.05, alpha: 0.10, beta: 0.85}
+    arch1: {omega: 0.20, alpha: 0.40}
+  test:  # small-n settings for tests/test_p2.py only
+    n: 2000
+    n_noise: 1000
+    n_seeds: 30     # seeds seed..seed+n_seeds-1 for the white-noise rule checks
+    min_share: 0.5  # share of noise seeds that must give the "null" verdict
+    garch11: {omega: 0.05, alpha: 0.15, beta: 0.80}
+    arch1: {omega: 0.20, alpha: 0.50}
+
+# P3a calibration of two rules on SIMULATED data only (D-018). Never run on real data.
+calibration:
+  seed_base: 1000000  # replication i uses seed seed_base + i
+  R: 100              # replications per (candidate, true model)
+  n: 1000             # series length
+  n_jobs: -1          # joblib workers (-1 = all cores); results do not depend on it
+  models:             # true data-generating processes (omegas are my choice, unverified)
+    arch1: {omega: 0.20, alpha: 0.40}
+    garch11: {omega: 0.05, alpha: 0.10, beta: 0.85}
+    ar1_garch11: {phi: 0.20, omega: 0.05, alpha: 0.10, beta: 0.85}  # AR(1) mean, GARCH(1,1) shocks
+    iid: {sigma: 1.0}
+    arch2: {omega: 0.20, alphas: [0.30, 0.25]}  # calibration-only (D-022), not in the P3 true grid; omega is my choice
+  truth:             # what a perfect selector would return: mean order m and variance order [p, q]
+    arch1: {m: 0, order: [1, 0]}
+    garch11: {m: 0, order: [1, 1]}
+    ar1_garch11: {m: 1, order: [1, 1]}
+    iid: {m: 0, order: [0, 0]}
+    arch2: {m: 0, order: [2, 0]}
+  candidates:
+    fade:             # name -> variance.fade_max_spikes. F3 is frozen (D-023); F0, F1, F2, F4 are calibration only
+      F0: 0  # calibration only
+      F1: 1  # calibration only
+      F2: 2  # calibration only
+      F3: 3  # FROZEN; F3, F4 added after seeing F0-F2 results (D-021)
+      F4: 5  # calibration only
+    mean_trigger:     # name -> mean.trigger. M1 is frozen (D-023)
+      M0: spike_or_lb  # calibration only
+      M1: lb_only      # FROZEN
+    cutoff:           # name -> variance.cutoff_rule (D-022). C0 is frozen (D-023)
+      C0: last_significant  # FROZEN
+      C1: contiguous        # calibration only
+  cutoff_grid:        # D-022 grid: cutoff candidates x fade candidates, scored on its models list
+    fade: [F2, F3, F4]
+    models: [arch1, arch2, garch11]
+    margin: 0.03      # keep (C0, F3) unless the best candidate beats it by at least this (D-022)
+
+# Final evaluation (P3 recovery table). Seed range must never overlap the calibration range.
+eval:
+  seed_base: 2000000  # replication i uses seed_base + i, i < sim.R
 
 fred:
   url_template: "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"  # unverified
 
-pairs_optional: [DEXINUS]
+pairs_optional: []
 
 eda:
   nlags: 40
@@ -53,3 +122,253 @@ eda:
 paths:
   raw_dir: data/raw
   processed_dir: data/processed
+  results_dir: results  # calibration.csv and later result tables
+
+# P3(b) forecast evaluation (D-028). Nothing here touches a selector rule.
+evaluate:
+  primary_loss: qlike          # headline loss; mse is the secondary check
+  losses: [qlike, mse]         # names understood by evaluate.LOSSES
+  samples: [all, common_valid] # all = every test day (primary); common_valid = days both selectors had a valid fit
+  comparisons:                 # [A, B]: d_t = loss_A - loss_B, so a negative DM means A is better
+    - [hybrid, fixed_garch11]
+    - [hybrid, acf_only]
+    - [hybrid, grid_bic]
+    - [hybrid, rolling_var]
+    - [grid_bic, rolling_var]
+  grid_selector: grid_bic      # the selector that loss_table's agree_grid compares orders against
+  figure_baseline: fixed_garch11  # cumulative QLIKE differences in the notebook figure are measured against this
+  block_pair: DEXINUS          # D-029: pair whose hybrid-vs-fixed QLIKE difference is split by refit block
+  block_compare: [hybrid, fixed_garch11]  # D-029: [A, B] of that split; block value = sum of QLIKE_A - QLIKE_B
+  dm:
+    lag_c: 4          # Newey-West bandwidth L = floor(lag_c * (T / lag_ref) ** lag_exp)
+    lag_ref: 100
+    lag_exp: 0.2222222222222222   # 2/9
+    min_days: 20      # fewer common days than this -> status too_few_days, no p-value
+  test:               # settings for tests/test_evaluate.py only
+    n: 500            # length of the simulated loss series
+    shift: 0.3        # constant by which loss A is lower than loss B
+    noise_sd: 1.0     # standard deviation of the noise added to both losses
+
+# P3(c) order-recovery experiment on the EVAL seeds (D-030). Rules are frozen (D-023); nothing here tunes a rule.
+# Lengths come from sim.n, replications from sim.R, seeds from eval.seed_base + i.
+recovery:
+  smoke: false        # true = quick check (smoke_R replications, smoke_n lengths only). false = full run (R = sim.R, n = sim.n)
+  smoke_R: 20         # replications per cell in smoke mode (must be <= sim.R)
+  smoke_n: [1000]     # lengths run in smoke mode
+  grid_n: [1000]      # lengths at which grid_bic is also run (30 fits per series, so only one n)
+  n_jobs: -1          # joblib workers (-1 = all cores); results do not depend on it
+  models:             # omega is NOT listed: omega = 1 - persistence (unit unconditional variance), computed in code
+    arch1: {alphas: [0.40], betas: []}                         # ARCH(1), true (p, q) = (1, 0)
+    garch11: {alphas: [0.10], betas: [0.85]}                   # true (1, 1)
+    garch21: {alphas: [0.05, 0.05], betas: [0.85]}             # true (2, 1)
+    garch12: {alphas: [0.10], betas: [0.50, 0.30]}             # true (1, 2)
+    garch11_t: {alphas: [0.10], betas: [0.85], dist: t, nu: 6} # true (1, 1), Student-t innovations scaled to unit variance
+    iid: {alphas: [], betas: []}                               # control: constant variance, true (0, 0)
+    ar1_garch11: {phi: 0.20, alphas: [0.10], betas: [0.85]}    # control: AR(1) mean, true m = 1 and (1, 1)
+  test:               # settings for tests/test_recovery.py only
+    n_small: 500      # series length for the shape / plumbing tests
+    R: 2              # replications for the small experiment tests
+    n_var: 50000      # length of the iid-t series used to check unit variance
+    var_tol: 0.05     # allowed distance of the sample variance from 1 (about 5 Monte Carlo SDs at n_var)
+
+# Post-hoc diagnostic (D-031): why does ARCH(1) exact recovery fall with n? Changes no rule; outcome never used to change one.
+# Seeds diagnostic.seed_base + i (i < R) must stay disjoint from calibration.seed_base and eval.seed_base ranges.
+diagnostic:
+  enabled: true        # false = the notebook cell skips the diagnostic
+  seed_base: 3000000   # disjoint from calibration (1000000..) and eval (2000000..)
+  R: 500               # replications per (alpha, n) cell
+  n: [500, 1000, 4000] # series lengths
+  alphas: [0.2, 0.4]   # ARCH(1) alpha; omega = 1 - alpha. 0.4 is above (1/105)^(1/4) = 0.31 (8th moment infinite), 0.2 below
+  lag_min: 2           # false_spike_rate counts a significant PACF-of-squares lag in lag_min..lag_max
+  lag_max: 5           # must be <= variance.corr_lags
+  change_tol: 0.05     # verdict: "falls" = change < -tol, "does not fall" = change >= -tol, "rises" = change > +tol
+  test:                # settings for tests/test_diagnostic.py only
+    n: 1000            # series length for the iid false-spike check
+    R: 100             # replications for the iid false-spike check
+    rate_lo: 0.05      # iid false_spike_rate must lie in [rate_lo, rate_hi]
+    rate_hi: 0.40
+    n_small: 500       # series length for the plumbing test
+    R_small: 2         # replications for the plumbing test
+
+# P4 Streamlit dashboard (D-032). Limitation captions, defaults and limits live here; app.py holds no numbers or text rules.
+# Nothing here touches a selector rule (frozen, D-023). Seeds for the Simulate tab come from eval.seed_base.
+app:
+  page_title: "ACF/PACF-driven order selection for FX volatility"
+  min_obs: 500                 # earliest as-of date leaves at least this many returns (the rules need a few hundred)
+  pair_labels:                 # short names for the FRED series ids in `pairs` (titles, sidebar)
+    DEXUSEU: "EUR/USD"
+    DEXJPUS: "USD/JPY"
+    DEXINUS: "USD/INR"
+  pair_units:                  # what one quoted unit of the rate is (y-axis of the price chart, sidebar)
+    DEXUSEU: "US dollars per euro"
+    DEXJPUS: "Japanese yen per US dollar"
+    DEXINUS: "Indian rupees per US dollar"
+  forecast_default_selectors: [hybrid, rolling_var]   # selectors drawn by default on the Forecast tab
+  forecast_fallback_default: hybrid                   # selector whose fallback days are shaded by default (P4b)
+  selector_labels: &selector_labels   # plain names for the selectors (P4b, D-034); also used for table values
+    rolling_var: "Rolling-window variance"
+    fixed_garch11: "Fixed GARCH(1,1)"
+    acf_only: "ACF/PACF rules only (no gate)"
+    grid_bic: "Full-grid BIC"
+    hybrid: "Hybrid (ACF/PACF rules + gate + escalation)"
+  model_labels:                # plain names for recovery.models (Simulate tab)
+    arch1: "ARCH(1)"
+    garch11: "GARCH(1,1)"
+    garch21: "GARCH(2,1)"
+    garch12: "GARCH(1,2)"
+    garch11_t: "GARCH(1,1) with fat-tailed (Student-t) errors"
+    iid: "No volatility clustering (iid noise)"
+    ar1_garch11: "AR(1) mean with GARCH(1,1)"
+  rate_labels:                 # plain names of the recovery rates (keys of simulate.recovery_metrics)
+    exact: "Exact order found"
+    nesting: "Chosen model contains the true one"
+    family: "Right model family"
+    any_ar_rate: "Adds an AR mean when none is needed"
+    gate_pass: "Passes the diagnostic gate"
+    escalation_rate: "Needed escalation"
+    flagged: "Flagged"
+    no_valid_fit: "No valid fit"
+  param_labels:                # plain names of fitted parameters (arch names: omega, alpha[i], beta[i], Const, y[i], nu)
+    Const: "Mean level"
+    mu: "Mean level"
+    omega: "Baseline variance (omega)"
+    alpha: "Reaction to a past shock (alpha)"
+    beta: "Memory of past variance (beta)"
+    nu: "Tail thickness (nu)"
+    y: "AR coefficient on the past return"
+  columns:                     # plain column headings, keyed by the data frame column name (no snake_case in the UI)
+    n: "Observations"
+    mean: "Mean (% per day)"
+    std: "Standard deviation (% per day)"
+    skew: "Skewness"
+    excess_kurtosis: "Excess kurtosis (0 = normal curve)"
+    zero_returns: "Days with zero return"
+    series: "Series"
+    adf_stat: "ADF statistic"
+    adf_p: "ADF p-value"
+    kpss_stat: "KPSS statistic"
+    kpss_p: "KPSS p-value"
+    verdict: "Verdict"
+    test: "Test"
+    lag: "Lag (days)"
+    statistic: "Test statistic"
+    p_value: "p-value"
+    p: "p-value"
+    item: "Item"
+    value: "Value"
+    parameter: "Parameter"
+    passes: "Passes"
+    step: "Step"
+    result: "Result"
+    detail: "What happened"
+    order: "Order (p, q)"
+    dist: "Error distribution"
+    bic: "BIC (lower is better)"
+    valid: "Valid"
+    why: "Why"
+    persistence: "Persistence (alpha + beta)"
+    gate: "Gate"
+    selector: "Selector"
+    models_fitted: "Models fitted"
+    flagged: "Flagged"
+    no_valid_fit: "No valid fit"
+    rate: "Measure"
+    share: "Share of runs (%)"
+    mc_se: "Monte Carlo SE (+/- %)"
+    qlike: "QLIKE (lower is better)"
+    mse: "MSE (lower is better)"
+    refits: "Refits"
+    escalation_rate: "Needed escalation (%)"
+    modal_order_share: "Most common order used (%)"
+    agree_grid: "Same order as full-grid BIC (%)"
+    n_both_valid: "Refits compared with full-grid BIC"
+    fallback_share: "Rolling-variance fallback (%)"
+    valid_day_qlike: "QLIKE on own valid days"
+    loss: "Loss"
+    sample: "Days used"
+    A: "Selector A"
+    B: "Selector B"
+    mean_diff: "Mean loss difference (A minus B)"
+    dm: "Diebold-Mariano statistic"
+    L: "Newey-West lags"
+    status: "Outcome"
+    n_days: "Days"
+    dm_L20: "DM statistic (alternative lags)"
+    p_L20: "p-value (alternative lags)"
+  percent_columns: [share, mc_se, escalation_rate, modal_order_share, agree_grid, fallback_share]   # shown as % with one decimal
+  number_format: "%.4g"        # st.column_config format for the other decimal columns
+  value_labels:                # plain names for coded cell values, keyed by column
+    selector: *selector_labels
+    A: *selector_labels
+    B: *selector_labels
+    loss: {qlike: "QLIKE", mse: "MSE"}
+    sample: {all: "All test days", common_valid: "Only days both selectors had a valid fit"}
+    status: {ok: "Test computed", identical: "Identical forecasts, no test", too_few_days: "Too few days", nonpositive_lrv: "Variance estimate not positive"}
+    verdict: {stationary: "Stationary", unit_root: "Unit root", inconclusive: "Inconclusive"}
+    step: {start: "Start order", neighbour: "Neighbouring order", student_t: "Student-t errors", constant_variance: "Constant variance"}
+    dist: {normal: "Normal", t: "Student-t"}
+    why: {ok: "OK", "omega<=0": "Baseline variance not positive", "negative alpha/beta": "Negative coefficient", "persistence>=1-tol": "Persistence at or above 1"}
+    gate: {pass: "Passed", fail: "Failed", "not tested": "Not tested"}
+  simulate:
+    default_model: garch11     # a key of recovery.models
+    default_n: 1000            # one of sim.n
+    default_R: 20              # live replications on the slider at start
+    max_live_R: 50             # live Monte Carlo is capped here (cost); the saved table has R = sim.R
+    saved_selector: hybrid     # which selector's row of results/recovery_table.csv is shown
+    chart_rates: [exact, nesting, family]   # rates drawn in the grouped bar chart (keys of rate_labels)
+    max_orders: 8              # most bars in the "which order was chosen" chart (the true order is always kept)
+    live_note: "The live run uses {live_R} simulated series, so its exact-order rate has a Monte Carlo standard error of {live_se_exact}. Treat the saved run ({saved_R} series) as the reference."
+  missing_csv_command: ".atsa-project/bin/python -m nbconvert --to notebook --execute --inplace notebooks/03_results.ipynb"
+  captions:                    # one short limitation note per tab
+    data: "FRED H.10 rates are noon buying rates in New York, not closing prices, so every return is noon-to-noon. Only data up to the as-of date is used. KPSS p-values are interpolated from a table and bounded (about 0.01 to 0.10)."
+    diagnose: "Noon rates, not closes. The 95% band assumes white noise and light tails; squared returns are heavy-tailed, so chance spikes outside the band are common (D-023 limit). The readout runs the frozen rules (D-023) on data up to the as-of date only."
+    select: "Rules frozen (D-023): nothing is tuned here. One fit on one sample, so a single result says little about the method; see the Simulate tab for how often the rules recover a known order. Gate p-values use no degrees-of-freedom adjustment (D-014)."
+    forecast: "Read from saved CSVs, nothing is recomputed, and this tab ignores the as-of slider (the forecasts were made with an expanding window, D-024). The target is the squared return r2, a very noisy proxy for the true variance (D-027), so single days say little; only the averaged losses mean something. Raw p-values, no multiplicity correction (D-028). Where the rolling-variance fallback share in the loss table is above 0, a selector used the fallback on those refits (D-026): read its losses with that share."
+    simulate: "Rules frozen (D-023). True models and their omegas are my choice (D-030); live runs use few replications, so the Monte Carlo SE is large. The saved row uses many more replications on the same eval seeds, so the live replications are a subset of it. Hybrid selector only."
+  pair_notes:                  # extra limitation shown only for these pairs
+    DEXINUS: "INR fallbacks: on many INR refits every fitted model is rejected (alpha+beta on or above the boundary), and the forecast falls back to the rolling 60-day variance (D-019, D-026). A selector with a high fallback share is partly the rolling baseline in disguise."
+  explain:                     # P4b (D-034): "How to read this tab" texts. {placeholders} are filled by dashboard.explain_values
+    title: "How to read this tab"   # from the results CSVs, the loaded data or this config; a missing source prints "n/a".
+    parts: {what: "What it shows", how: "How to read it", look: "What to look for", caveats: "Caveats"}
+    data:
+      what: "The daily exchange rate for {pair_label} from {first_date} to {last_date} ({n_obs} daily returns), the daily percentage change in that rate (log return times 100), and how those changes are spread compared with a normal bell curve."
+      how: "Drag the bar under the rate chart to zoom to a period, and hover to read exact values. In the histogram the dashed orange line is the normal curve with the same mean and spread as the data; the buttons switch the vertical axis between linear and logarithmic so the tails become visible."
+      look: "Calm and wild stretches in the return chart (volatility comes in clusters), and histogram bars far out in the tails where the normal curve says days should almost never occur. Excess kurtosis here is {excess_kurtosis} (a normal curve has 0), and {zero_days} days have exactly zero change. The rate level usually looks like a unit root while returns look stationary; this is why the study models returns."
+      caveats: "FRED H.10 rates are noon buying rates in New York, not closing prices. Only data up to the as-of date in the sidebar is used."
+    diagnose:
+      what: "The autocorrelation (ACF) and partial autocorrelation (PACF) of the returns and of the squared returns, plus formal tests, using data up to the as-of date. Squared returns stand in for variance, so their pattern shows volatility clustering."
+      how: "Each bar is the correlation between a series and itself some number of days earlier (the lag). Bars inside the grey band (about plus or minus {band} here, the {band_pct}% band) are what pure noise would produce. Bars outside it are spikes, drawn hatched in orange; hover to see the lag, the value and whether it is outside the band. The rules read the mean order from the returns and the variance order from the squares."
+      look: "Few spikes in the returns and many in the squares mean a steady mean but changing variance. In the squares, a PACF that stops after lag p points to ARCH(p), and an ACF that dies away slowly points to GARCH. In the tables a p-value below {gate_alpha} rejects 'no autocorrelation' or 'no ARCH effect'."
+      caveats: "The band assumes light tails and no clustering, so for squared returns it is too narrow and chance spikes are common (D-031). In the saved check on simulated ARCH(1) series with the larger coefficient ({alpha_high}), the share of series with a spurious PACF spike in lags 2 to 5 was {spike_rate_small_n} at {n_small} days and {spike_rate_large_n} at {n_large} days, against {spike_rate_low_alpha} at {n_large} days for the smaller coefficient ({alpha_low}). The tables here use the raw returns, whereas the rules use residuals of the mean model."
+    select:
+      what: "What the selector did on data up to the as-of date: a step-by-step trace, the fitted parameters, the diagnostic gate and every model it tried."
+      how: "Read the step table from top to bottom: a tick means the step passed, a cross means it failed, a dash means it was not needed. In the bar chart each bar is the p-value of one gate test; it must stand above the dashed line ({gate_alpha}) to pass. The model table has one row per model fitted. The button fits every (p, q) combination and shows what the full-grid BIC would choose."
+      look: "Whether the first model already passed the gate (no escalation), how close the persistence (alpha plus beta) is to 1, and whether the hybrid and the full-grid choices agree. In the saved simulation the hybrid needed on average {hybrid_fits} model fits per series against {grid_fits} for the full grid."
+      caveats: "One fit on one sample says little about the method; the Simulate tab shows how often the rules find a known order. Gate p-values use no degrees-of-freedom adjustment (D-014). The rules are frozen ({frozen_id}) and nothing here is tuned."
+    forecast:
+      what: "Saved one-day-ahead volatility forecasts for {pair_label} over {n_days} test days from five selectors, set against the realised size of each day's move (the absolute return). Nothing is recomputed here."
+      how: "Click a name in the legend to hide or show a selector, and use the bar under the chart to zoom. The grey line is the realised size of the move; a good forecast sits near the typical height of the grey line. Yellow shading marks days on which the selector chosen below the chart had no valid model and used the rolling-variance fallback. The cumulative chart adds up, day by day, how much better or worse each selector is than the baseline in QLIKE: a falling line means better. In the loss table lower is better. In the Diebold-Mariano table a negative statistic means selector A has the lower loss, and 'Identical forecasts' means both selectors chose the same model so there is nothing to test."
+      look: "Lines that end clearly below zero in the cumulative chart, and test results that are small (below {alpha_level}) under both lag choices. For this pair the hybrid used the rolling-variance fallback on {fallback_hybrid} of days and the fixed GARCH(1,1) on {fallback_fixed}; read their losses with that in mind."
+      caveats: "The target is the squared return, a very noisy stand-in for the true variance, so single days say little and only averages matter (D-027). Many tests are run and none is corrected for that, so one small p-value is not proof (D-028). Noon rates, not closes. The as-of slider does not apply to this tab."
+    simulate:
+      what: "A test of the selector on artificial data where the true model is known: series are simulated from a chosen model, the hybrid selector is run on each, and we count how often it picks the right order. The saved run has {saved_R} series per case; the live run has {live_R}."
+      how: "Pick a true model and a series length. The first chart compares the live run with the saved run on three measures, with error bars of plus or minus one Monte Carlo standard error. The second chart shows which order the selector chose, as a percentage of runs; the green band marks the true order. The heatmap shows, for every true model, which order the selector chose in the saved run (brighter means more often); outlined squares mark the true order."
+      look: "For this model and length the saved run finds the exact order in {saved_exact} of series, and the chosen model contains the true one in {saved_nesting}. Bars to the left or right of the true order mean under-fitting or over-fitting. Differences between the live and saved run smaller than the live error bar ({live_se_exact}) are noise."
+      caveats: "The saved run is the reference; a live run with few series is noisy. The true models and their parameters were chosen by the project author and cover low orders only. Results for ARCH(1) can get worse with longer series (D-031). Where every fit was rejected, the order shown is the rule's proposal, not a fitted model (D-030). The rules are frozen ({frozen_id})."
+  glossary_title: "Glossary"
+  glossary:
+    - {term: "ACF", text: "Autocorrelation function: the correlation between a series and itself some number of days earlier (the lag)."}
+    - {term: "PACF", text: "Partial autocorrelation function: the same correlation after removing what shorter lags already explain. An AR(p) process has a PACF that stops after lag p, which is how the rules read orders."}
+    - {term: "Band", text: "The grey 95% band: the range that correlations of pure noise stay inside about 95% of the time. Its width shrinks as the sample grows. A bar outside it is a spike. For squared returns it is too narrow."}
+    - {term: "GARCH(p,q)", text: "A model in which today's variance depends on p past squared shocks (reaction) and q past variances (memory). With q = 0 it is ARCH(p). Same convention as the arch package."}
+    - {term: "Persistence", text: "Alpha plus beta in a GARCH model. Close to 1 means volatility shocks fade very slowly; at or above 1 the model has no finite variance and the fit is rejected."}
+    - {term: "Gate", text: "The diagnostic check after a fit: the squared standardised residuals must look like white noise (Ljung-Box at several lags and ARCH-LM must all have p-values above the threshold)."}
+    - {term: "Escalation", text: "What the selector does when the gate fails: try a neighbouring order, then Student-t errors, within a fixed cap, and flag the result if it still fails."}
+    - {term: "Nesting", text: "The chosen model contains the true one (its p and q are at least as large), even if it is bigger than needed."}
+    - {term: "Family", text: "Whether the rule's starting model is the right kind: pure ARCH (no variance lag) or GARCH (with a variance lag)."}
+    - {term: "Monte Carlo SE", text: "The sampling error of a share measured on a limited number of simulated series: the square root of p(1-p)/R. More series, smaller error."}
+    - {term: "QLIKE", text: "Forecast loss ln(h) + r2/h, where h is the forecast variance and r2 the squared return. Lower is better. Chosen because it copes well with the noisy squared-return target (D-005)."}
+    - {term: "Diebold-Mariano", text: "A test of whether two forecasts have the same average loss. A negative statistic means the first selector (A) has the lower loss. Newey-West standard errors allow for autocorrelated daily loss differences."}
+    - {term: "Fallback", text: "When no fitted model is valid, the forecast uses the rolling-window variance instead and the day is marked."}
+  test:                        # settings for tests/test_app.py only
+    timeout_s: 300             # AppTest run timeout (the default page runs one select_and_fit on the full sample)

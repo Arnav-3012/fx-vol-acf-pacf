@@ -8,3 +8,6 @@ streamlit
 joblib
 pytest
 pyyaml
+nbconvert
+ipykernel
+plotly

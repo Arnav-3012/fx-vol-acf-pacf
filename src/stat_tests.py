@@ -14,7 +14,7 @@ def adf_kpss(x, alpha: float = 0.05) -> dict:
     range; the InterpolationWarning is suppressed.
     """
     x = np.asarray(x, dtype=float)
-    adf_stat, adf_p = adfuller(x, autolag="AIC")[:2]
+    adf_stat, adf_p = adfuller(x, autolag="AIC", result_object=False)[:2]
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         kpss_stat, kpss_p = kpss(x, regression="c", nlags="auto")[:2]
@@ -38,5 +38,5 @@ def ljung_box(x, lags: list[int], model_df: int = 0) -> pd.DataFrame:
 def arch_lm(x, nlags: int) -> dict:
     """Engle ARCH-LM test on the demeaned series."""
     x = np.asarray(x, dtype=float)
-    lm, lm_p, f, f_p = het_arch(x - x.mean(), nlags=nlags)
+    lm, lm_p, f, f_p = het_arch(x - x.mean(), nlags=nlags, result_object=False)
     return dict(lm_stat=lm, lm_p=lm_p, f_stat=f, f_p=f_p)
