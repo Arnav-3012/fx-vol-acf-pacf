@@ -7,6 +7,7 @@ Module contracts are design, adjustable via docs/decision.md.
 fx-vol-acf-pacf/
   CLAUDE.md  README.md  config.yaml  requirements.txt  .gitignore  app.py
   docs/        logs.md phaseplan.md decision.md mistakes.md architecture.md
+               wiki/ (teaching wiki, D-035: 00-index..05-experiments, phases/, concepts/, code/)
   data/        raw/ processed/
   src/         __init__ data stat_tests correlogram rules selector
                baselines simulate forecast evaluate plots dashboard
@@ -194,3 +195,9 @@ prices -> log returns -> ADF/KPSS -> mean rule -> ARCH check -> variance rule ->
 - Reads (never writes): additionally results/recovery_orders.csv and results/diagnostic_arch1.csv.
 - Tests: tests/test_plots.py (10 functions, 19 cases, skipped if plotly is absent), tests/test_app.py (22 functions; config-coverage and placeholder tests check that every column, selector, model, rate and {placeholder} has a plain label or source). Counts are mine, unverified.
 - Verified in the installed source (not run): st.plotly_chart(figure_or_data, use_container_width=None, *, width="stretch", height="content", theme="streamlit", key=None, on_select="ignore", ...), streamlit 1.65.0, elements/plotly_chart.py lines 428-445. Unverified: every plotly call (plotly not installed in the venv when written), the sprintf format "%.1f" and "%.4g" in st.column_config.NumberColumn, AppTest's element name "plotly_chart".
+
+## Teaching wiki (D-035)
+- docs/wiki/ is documentation only; nothing in src/, app.py, tests/, notebooks/ or config.yaml imports or reads it.
+- Layout: 00-index, 01-glossary, 02-notation, 03-life-of-a-sample, 04-viva-bank, 05-experiments; phases/ (7), concepts/ (32), code/ (code/src/ for the 11 modules, plus app.md, config.md, tests.md, notebooks.md). Every page has frontmatter with `sources:` (repo paths it explains), which the skill's manifest uses to find stale pages.
+- docs/wiki/.manifest.json is script-managed (wiki_manifest.py scan / commit). It does not exist yet: the scripts are python and hard rule 1 forbids Claude Code from running them.
+- Maintenance rule: when a src/ function, a config key or a result file changes, the page listed in its `sources:` frontmatter is stale. Structure, signature or config changes still go to this file first (as before).

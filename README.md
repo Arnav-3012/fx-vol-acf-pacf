@@ -357,6 +357,8 @@ python -m streamlit run app.py
 
 The Forecast and Simulate tabs read `results/*.csv`. If they are missing the app prints the command that regenerates them (notebook 03 above).
 
+USD/INR note: on the Select tab, USD/INR at the full sample shows a red "No valid fit" banner. This is expected, not a crash: every GARCH fit tried ends with persistence at the boundary of 1 and is rejected, so the order shown is only the rule's proposal and the forecasting experiment falls back to the rolling 60-day variance (D-019, D-026).
+
 ---
 
 ## The dashboard
@@ -394,7 +396,7 @@ The `frozen` block records the date and decision ID of the rule freeze; `tests/t
 
 - **Seeds** come from `config.yaml`. Calibration, evaluation and diagnostic seed ranges are disjoint and checked in code.
 - **No look-ahead.** The test suite includes checks that forecasts for day *t* do not change when later data is altered, and that the dashboard's as-of cut does not leak.
-- **Decision log.** `docs/decision.md` records every design choice (D-001 to D-034) with why and alternatives; entries written before results are marked as such, and post-hoc ones are labelled post-hoc.
+- **Decision log.** `docs/decision.md` records every design choice (D-001 to D-035) with why and alternatives; entries written before results are marked as such, and post-hoc ones are labelled post-hoc.
 - **Mistakes log.** `docs/mistakes.md` records errors and wrong assumptions with the prevention rule.
 - **Work log and plan.** `docs/logs.md` is a dated record of what was run and read; `docs/phaseplan.md` tracks what is verified (`[x]`) versus only written (`[~]`).
 - **Division of labour.** Planning was done in a claude.ai project; coding was done with Claude Code under strict rules (see `CLAUDE.md`): the assistant never ran code or state-changing git, and the author ran every command and pasted the output back, so no result in the logs is invented.
@@ -409,12 +411,15 @@ The `frozen` block records the date and decision ID of the rule freeze; `tests/t
 | P1 data, stationarity, first correlograms | done and verified |
 | P2 selector | done and verified |
 | P3a calibration and rule freeze | done and verified |
-| P3 baselines, forecast, evaluation, recovery experiment | done and verified through the full recovery run (81 tests passed at the last verified run) |
-| P3 (c2) ARCH(1) diagnostic | run and read; its new tests have not been confirmed by a pytest run |
-| P4 / P4b Streamlit dashboard (Plotly) | written; **not yet run or visually checked**; its tests are unconfirmed |
+| P3 baselines, forecast, evaluation, recovery experiment | done and verified through the full recovery run |
+| P3 (c2) ARCH(1) diagnostic | done and verified (run, read, tests passed) |
+| Test suite | **132 passed** in one run (2026-10-19) |
+| P4 / P4b Streamlit dashboard (Plotly) | written, all its tests pass; the app was opened and the Select tab for USD/INR was checked by eye. The other four tabs and the Plotly visuals have **not** been visually checked yet |
 | P5 written report | not started |
 
-Planned work: confirm the full test suite and the dashboard by running them, combine the result tables across all three pairs, write the report.
+The data is fixed at the FRED download of 2026-10-08 (last observation 2026-10-02), so the dashboard's as-of slider ends there and every saved result is reproducible against the same sample.
+
+Planned work: look at the remaining dashboard tabs, combine the result tables across all three pairs (P3 task d), write the report.
 
 ---
 

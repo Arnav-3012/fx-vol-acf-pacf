@@ -252,7 +252,14 @@ with tab_select:
     # Step-by-step trace with pass / fail icons, then the gate p-values as a bar chart.
     st.subheader("What the selector did, step by step")
     show_table(step_table(result, cfg))
-    show_chart(plots.gate_pvalue_bars(tables["gate"], cfg["gate"]["alpha"]))
+
+    # The gate tests the residuals of a VALID model. With no valid fit there are no p-values, so an
+    # empty chart would only show bare axes; say why there is nothing to draw instead.
+    if result["no_valid_fit"]:
+        st.info("No gate chart: every model was rejected before the diagnostic gate could test it "
+                "(see steps 4 and 5 above, and the escalation log below for each fit's persistence).")
+    else:
+        show_chart(plots.gate_pvalue_bars(tables["gate"], cfg["gate"]["alpha"]))
 
     # Every model fitted, the chosen model's parameters, and the summary.
     st.subheader("Every model fitted (the escalation log)")

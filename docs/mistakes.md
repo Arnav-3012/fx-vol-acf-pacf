@@ -55,3 +55,9 @@ Format: ID | date | what went wrong | cause | fix | prevention rule.
 - Cause: the scaffold's .gitignore listed .venv/ and venv/ but the venv was created under the name .atsa-project.
 - Fix: added .atsa-project/, .DS_Store and .env to .gitignore. The push commands start with `git status --short` and a dry-run `git add -n .` to confirm.
 - Prevention: when a venv has a custom name, add it to .gitignore at creation; check `git status` for large untracked folders before the first push.
+
+## M-008 | 2026-10-08
+- What: in the first shell command of the codebase-wiki task I included an empty `python3 - <<'EOF' ... EOF` heredoc after a `ls`. It ran the interpreter on an empty program only (no project code, no file touched), but it breaks hard rule 1 in letter and repeats M-003, M-004 and M-006.
+- Cause: a habit of ending listing commands with a pointless trailing command; nothing needed Python.
+- Fix: none needed. Afterwards I used only ls, wc, grep, jq, sed and find, and did not run the skill's python scripts (manifest, link check); they are left to the user.
+- Prevention: unchanged from M-004 and M-006: no python or python3 in any Bash command, not even empty. When a skill says to run a python script, put it under "Commands to run" instead.

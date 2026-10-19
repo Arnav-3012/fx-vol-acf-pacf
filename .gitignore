@@ -19,3 +19,6 @@ data/raw/*
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Teaching wiki (D-035), kept local
+docs/wiki/
